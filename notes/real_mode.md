@@ -4,10 +4,6 @@ When processor boots up, it is set on real mode which duplicates the execution e
 
 The BIOS tests and initializes the hardware, sets up the IVT (along with a bunch of other stuff probably), then loads up the MBR from the first bootable disk into memory at physical address 0x7C00, and then starts running the code in the MBR. The MBR is 512 bytes, with the first 440 bytes containing the bootloader code, and the rest containing partition table info. 
 
-According to OSDEV (i imagine modern hardware still follows this, not sure) after bios cedes control, memory is laid out like: 
-
-https://wiki.osdev.org/Memory_Map_(x86)
-
 ## Memory & Registers
 
 Real mode supports up to 1mb (2^20 bytes) of physical memory, which is divided into segments of up to 2^16 (64 K) bytes.
@@ -48,8 +44,37 @@ The IVT is a table of 4 byte long entries located at address 0x0000 and UP TO 0x
 
 ## Protected mode 
 
+### Data structures
+
+To proceed to protected mode, the OS needs to set up the following data structures:
+
+- IDT (interrupt descriptor table) for handling interrupts in protected mode + IDTR
+- GDT (global descriptor table) for defining the memory segments in protected mode + GDTR
+- TSS (task state segment) for storing the state of tasks in protected mode
+- One page directory and one table
+- Interrupt handlers for protected mode
+- Control registers CR1 to CR4.
+
+### Switching to protected mode
+
+#### In real mode:
+
+1. Disable interrupts
+2. Execute lgdt instruction to load the GDT and set up the GDTR
+3. Set PE bit in CR0 to enable protected mode
+4. Execute a far jump/call instruction (now in protected mode, resets CS)
+
+#### In protected mode:
+
+5. Peform ltr instruction to load the TSS selector into the task register
+6. Reset segment registers
+7. Execute lidt instruction to load the IDT and set up the IDTR
+8. Enable interrupts
+
+After that the OS can be switched to protected mode by setting the PE bit in CR0.
+
 ## Sources
 
 - https://wiki.osdev.org/Real_Mode
 - https://wiki.osdev.org/Memory_Map_(x86)
-- CHAPTER 15: 8086 emulation from https://pdos.csail.mit.edu/6.828/2008/readings/ia32/IA32-3A.pdf (surprisingly short) 
+- CHAPTER 23: 8086 emulation from the intel manual volume 3

@@ -39,7 +39,7 @@ The BIOS is firmware that initializes the hardware and provides basic input/outp
 
 The BIOS finds and loads the MBR at address 0x7C00 for the first disk with 0x55AA at the end of MBR, then jumps to it.
 
-The physical address space (<1MB) of the processor after the BIOS gives control to the MBR looks like (wtf there are 0 sources in the wiki):
+The physical address space (<1MB) of the processor after the BIOS gives control to the MBR looks like:
 
 https://wiki.osdev.org/Memory_Map_(x86)
 
@@ -47,7 +47,12 @@ The only really important things to note from systems programming are:
 
 1. Moves and cedes control to the MBR at 0x7C00, where 440 bytes contain the bootloader code and the rest partition table info.
 2. Provides BIOS interrupts for basic input/output services through the IVT at address 0x00000000 that can be run with simple INT instructions.
+3. User can use memory freely from 0x500 to 0x7FFFF without worrying about overwriting the BIOS data structures.
 
 ## Our bootloader
 
 We'll use a *double stage bootloader* where the first stage fits within the first 440 bytes of the MBR, and the other loads the kernel. Actual systems will use GRUB (gnu project bootloader) for their specific boot firmware and architecture, and probably use UEFI.
+
+Found this really cool source:
+
+https://alamot.github.io/os_stage1/#stage1code
