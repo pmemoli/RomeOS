@@ -55,4 +55,5 @@ We'll use a *double stage bootloader* where the first stage fits within the firs
 
 Found this really cool source:
 
-https://alamot.github.io/os_stage1/#stage1code
+https://alamot.github.io/os_stage1/
+https://alamot.github.io/os_stage2/

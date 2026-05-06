@@ -1,11 +1,11 @@
-boot.bin:
-	nasm -f bin ./kernel/boot.asm -o boot.bin
+os.bin:
+	nasm -f bin ./kernel/os.asm -o os.bin
 
-run: boot.bin
-	qemu-system-x86_64 -drive format=raw,file=boot.bin
-	rm -f boot.bin
+run: os.bin
+	qemu-system-x86_64 -drive format=raw,file=os.bin
+	rm -f os.bin
 
 clean:
-	rm -f boot.bin
+	rm *.bin
 
 .PHONY: run clean

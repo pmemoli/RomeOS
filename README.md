@@ -4,7 +4,9 @@ Final goal is a simple window system for shells, and running doom as a user spac
 
 TODO:
 
-- [] Bootloader
+- Read the overview of the architecture in depth from the intel manual
+- Read relevant OSDEV pages
+- Implement the bootloader
 
 Sources:
 
