@@ -1,4 +1,4 @@
-; This stage is responsible for setting up long mode. Its tiny so it could fit into stage 1.
+; This stage is responsible for setting up long mode.
 
 stage_2_entrypoint:
     mov ah, 0x0E    
@@ -12,14 +12,28 @@ stage_2_entrypoint:
     mov ax, 0x2401
     int 0x15
 
-    ; Sets up minimal kernel memory access structures
-
-    ; segment structures (flat model)
+    ; Segment structures (flat model)
     lgdt [gdt_descriptor] 
 
-    ; paging structures
+    ; Paging structures (identity mapping of first 2 MiB)
+    mov edi, PML4 ; destination
+    mov ecx, 5*0x1000/4 ; repetitions
+    xor eax, eax ; value to write
+    rep stosd ; sets PML4, PDPT, PD to 0
 
-    ; Enables long mode bits and stuff
+    mov eax, PDPT
+    or eax, PAGE_WRITE | PAGE_PRESENT
+    mov [PML4], eax
+
+    mov eax, PD
+    or eax, PAGE_WRITE | PAGE_PRESENT
+    mov [PDPT], eax
+
+    mov eax, 0
+    or eax, PAGE_WRITE | PAGE_PRESENT | PAGE_LARGE_SIZE
+    mov [PD], eax
+
+    ; Enables long mode bits
 
     ; Far jumps to long mode entry point (sets code segment)
     jmp CODE64_SEL:long_mode_start
@@ -37,7 +51,6 @@ long_mode:
     ; Here it should jump to kernel entry point
     jmp $
 
-; GDT
 align 8
 gdt_start:
     ; null segment (8 null bytes)
@@ -66,3 +79,13 @@ gdt_descriptor: ; [address | limit]
 
 CODE64_SEL equ 0x08
 DATA64_SEL equ 0x10
+
+; Paging control bits
+PAGE_PRESENT equ (1 << 0)
+PAGE_WRITE equ (1 << 1)
+PAGE_LARGE_SIZE equ (1 << 7) ; defines if page directories map 2mb pages instead of page tables
+
+; Page table addresses
+PML4 equ 0x1000
+PDPT equ 0x2000
+PD equ 0x3000

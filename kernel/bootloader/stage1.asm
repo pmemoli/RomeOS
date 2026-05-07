@@ -15,6 +15,9 @@ stage_1_entrypoint:
     ; sets up the stack
     mov sp, 0x7C00 ; stack grows down from the start of this 
 
+    ; forward direction for di on string operations
+    cld
+
     ; loads stage 2 from disk (using LBA)
     mov [disk], dl ; store the boot drive number in case int clobbers it
     mov si, disk_address_packet ; recieves input from the dap pointer
