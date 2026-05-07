@@ -37,14 +37,10 @@ disk_error:
 disk_address_packet:
     db 0x10 ; size of packet
     db 0 ; reserved
-
-    ; memory destination
-    dw 0 ; segment
-    dw stage_2_start ; offset
-
-    ; source
-    dq 1 ; starting LBA (sector 1)
     dw (stage_2_end - stage_2_start) / 512 ; sector count
+    dw stage_2_start ; destination offset
+    dw 0 ; destination segment
+    dq 1 ; starting LBA (sector 1)
 
 disk: db 0 ; storage for the boot drive number
 
