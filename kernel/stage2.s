@@ -1,6 +1,9 @@
 ; This stage is responsible for setting up long mode.
 BITS 16
 
+extern kmain ; defined in kmain.c
+global stage_2_entrypoint
+
 stage_2_entrypoint:
     ; Disable interrupts
     cli 
@@ -8,6 +11,10 @@ stage_2_entrypoint:
     ; Enables A20 line to not truncate physical addresses above 1 MiB
     mov ax, 0x2401
     int 0x15
+
+    ; VGA 0x13 mode
+    mov ax, 0x0013
+    int 0x10
 
     ; Segment structures (flat model)
     lgdt [gdt_descriptor] 
@@ -61,7 +68,7 @@ long_mode_entrypoint:
     mov gs, ax
     mov ss, ax
 
-    jmp $
+    jmp kmain
 
 align 8
 gdt_start:

@@ -1,7 +1,8 @@
 ; Basically just loads stage 2 to bypass the 512 byte limit of the MBR
 
 BITS 16 ; Tells nasm to generate 16-bit code
-ORG 0x7C00 ; Code is loaded at this address
+
+extern stage_2_entrypoint ; defined in stage2.s
 
 stage_1_entrypoint:
     ; sets all segment registers to 0 (except for cs which is forbidden)
@@ -37,8 +38,8 @@ disk_error:
 disk_address_packet:
     db 0x10 ; size of packet
     db 0 ; reserved
-    dw (stage_2_end - stage_2_start) / 512 ; sector count
-    dw stage_2_start ; destination offset
+    dw 64 ; number of sectors (32kb is generous for the stage 2 + kernel)
+    dw stage_2_entrypoint ; destination offset
     dw 0 ; destination segment
     dq 1 ; starting LBA (sector 1)
 
